@@ -19,6 +19,9 @@
 ## Конфигурация (`app.config`)
 Файл: `src/Bellissimo.IikoFront.LoyaltyPlugin/app.config`
 
+> Важно: во время работы iikoFront плагин читает конфиг **не из `iikoFront.exe.config`**, а из файла рядом со сборкой плагина:  
+> `Bellissimo.IikoFront.LoyaltyPlugin.dll.config`.
+
 Обязательные параметры:
 - `ApiBaseUrl` — базовый URL loyalty API (например, `https://loyalty.example.com`).
 - `BasicAuthLogin` — логин Basic Auth.
@@ -58,6 +61,28 @@
    - `Bellissimo.IikoFront.LoyaltyPlugin.dll.config` (или актуальный config-файл сборки)
 2. Перезапустите iikoFront.
 3. Убедитесь, что плагин загрузился без ошибок (по логам и в UI iikoFront).
+
+## Формат `Manifest.xml` (V8)
+Файл манифеста должен быть в формате:
+
+```xml
+<?xml version="1.0" encoding="utf-8" ?>
+<Manifest>
+  <FileName>Bellissimo.IikoFront.LoyaltyPlugin.dll</FileName>
+  <TypeName>Bellissimo.IikoFront.LoyaltyPlugin.BellissimoLoyaltyPlugin</TypeName>
+  <ApiVersion>V8</ApiVersion>
+</Manifest>
+```
+
+Namespace `xmlns=...` для этого варианта не используется.
+
+## Что должно работать после запуска
+- На экране заказа появляется кнопка **Loyalty**.
+- По кнопке открывается окно лояльности поверх iikoFront (с попыткой перевести окно в foreground).
+- При `Apply` плагин:
+  - отправляет `apply` во внешний loyalty API;
+  - применяет скидку в заказ через `IEditSession` + flexible sum discount;
+  - добавляет free items в заказ (если возвращены API).
 
 ## Проверка запуска (чек-лист)
 - Указан реальный `PluginLicenseModuleId` GUID.
