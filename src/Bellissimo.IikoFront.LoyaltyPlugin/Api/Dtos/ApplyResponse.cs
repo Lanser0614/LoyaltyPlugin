@@ -1,0 +1,2 @@
+using System.Collections.Generic;
+namespace Bellissimo.IikoFront.LoyaltyPlugin.Api.Dtos { public sealed class ApplyResponse { public bool applied { get; set; } public long application_id { get; set; } public long total_discount_amount { get; set; } public List<DiscountDto> discounts { get; set; } public List<FreeItemDto> free_items { get; set; } public List<string> instructions_for_pos { get; set; } } }

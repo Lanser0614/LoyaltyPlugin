@@ -1,0 +1,2 @@
+using System.Collections.Generic;
+namespace Bellissimo.IikoFront.LoyaltyPlugin.Api.Dtos { public sealed class ApplyRequest { public string preview_id { get; set; } public string idempotency_key { get; set; } public string source { get; set; } public long customer_id { get; set; } public string iiko_order_id { get; set; } public int branch_id { get; set; } public string terminal_group_id { get; set; } public string pos_id { get; set; } public string cashier_id { get; set; } public List<OrderItemSnapshotDto> items { get; set; } } }

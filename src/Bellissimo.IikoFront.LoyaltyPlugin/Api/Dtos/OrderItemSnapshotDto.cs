@@ -1,0 +1,1 @@
+namespace Bellissimo.IikoFront.LoyaltyPlugin.Api.Dtos { public sealed class OrderItemSnapshotDto { public string line_id { get; set; } public string type { get; set; } public string iiko_product_id { get; set; } public string iiko_group_id { get; set; } public decimal quantity { get; set; } public long total_price { get; set; } } }

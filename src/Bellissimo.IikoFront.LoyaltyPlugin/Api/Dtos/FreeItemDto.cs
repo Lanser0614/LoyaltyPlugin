@@ -1,0 +1,1 @@
+namespace Bellissimo.IikoFront.LoyaltyPlugin.Api.Dtos { public sealed class FreeItemDto { public string iiko_product_id { get; set; } public decimal quantity { get; set; } public long price { get; set; } public string source { get; set; } } }

@@ -1,0 +1,26 @@
+<Window x:Class="Bellissimo.IikoFront.LoyaltyPlugin.UI.LoyaltyWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="Bellissimo Лояльность" Height="560" Width="700">
+    <Grid Margin="12">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+        <StackPanel Orientation="Horizontal" Grid.Row="0">
+            <TextBox Width="180" Text="{Binding Phone, UpdateSourceTrigger=PropertyChanged}"/>
+            <Button Margin="8,0,0,0" Content="Найти" Command="{Binding LookupCommand}"/>
+        </StackPanel>
+        <TextBlock Grid.Row="1" Margin="0,8,0,8" Text="{Binding CustomerInfo}"/>
+        <ListBox Grid.Row="2" ItemsSource="{Binding Rewards}" SelectedItem="{Binding SelectedReward}" DisplayMemberPath="name"/>
+        <StackPanel Grid.Row="3" Orientation="Horizontal" Margin="0,8,0,8">
+            <Button Content="Превью" Command="{Binding PreviewCommand}"/>
+            <Button Margin="8,0,0,0" Content="Применить" Command="{Binding ApplyCommand}"/>
+            <Button Margin="8,0,0,0" Content="Отменить" Command="{Binding CancelCommand}"/>
+        </StackPanel>
+        <TextBlock Grid.Row="4" TextWrapping="Wrap" Text="{Binding StatusMessage}"/>
+    </Grid>
+</Window>
