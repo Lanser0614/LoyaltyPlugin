@@ -1,19 +1,71 @@
-# Bellissimo iikoFront Loyalty Plugin (MVP)
+# Bellissimo iikoFront Loyalty Plugin
 
-## Setup
-1. Install **.NET Framework 4.7.2 Developer Pack**.
-2. Add SDK reference to `Resto.Front.Api.Vx.dll` (update HintPath in csproj as needed).
-3. Configure `src/Bellissimo.IikoFront.LoyaltyPlugin/app.config`:
-   - `ApiBaseUrl`
-   - `BasicAuthLogin`
-   - `BasicAuthPassword`
-   - terminal-group-specific settings (`BranchId`, `TerminalGroupId`, `PosId`)
-4. Insert real `PluginLicenseModuleId` in `BellissimoLoyaltyPlugin.cs`.
-5. Build project (`msbuild` or Visual Studio).
-6. Copy output files (`.dll`, `Manifest.xml`, config) to iikoFront `Plugins` folder.
-7. Start iikoFront with developer license.
+Плагин интегрирует iikoFront с внешней системой лояльности Bellissimo: поиск клиента, предпросмотр списаний/бонусов, применение скидок и подарков в заказе.
 
-## Notes
-- Loyalty service is source of truth for rewards/stacking rules.
-- Plugin does not contain reward business logic.
-- API errors are mapped to cashier-friendly Russian messages.
+## Требования
+- Windows + iikoFront с лицензией разработчика (developer license).
+- .NET Framework 4.7.2 Developer Pack.
+- Доступ к `Resto.Front.Api.Vx.dll` (версия должна соответствовать вашей версии iikoFront).
+
+## Где указать ключ лицензии плагина
+Ключ лицензии (GUID) задаётся **в коде**, в атрибуте `PluginLicenseModuleId`:
+
+- Файл: `src/Bellissimo.IikoFront.LoyaltyPlugin/BellissimoLoyaltyPlugin.cs`
+- Строка вида:
+  - `[PluginLicenseModuleId("00000000-0000-0000-0000-000000000000")]`
+
+Замените `00000000-0000-0000-0000-000000000000` на ваш реальный GUID из портала разработчика iiko.
+
+## Конфигурация (`app.config`)
+Файл: `src/Bellissimo.IikoFront.LoyaltyPlugin/app.config`
+
+Обязательные параметры:
+- `ApiBaseUrl` — базовый URL loyalty API (например, `https://loyalty.example.com`).
+- `BasicAuthLogin` — логин Basic Auth.
+- `BasicAuthPassword` — пароль Basic Auth.
+- `BranchId` — ID филиала в вашей системе лояльности.
+- `TerminalGroupId` — ID группы терминалов iiko.
+- `PosId` — ID/имя конкретной кассы (POS).
+
+Дополнительно:
+- `HttpTimeoutSeconds` — timeout HTTP-запросов (по умолчанию 10).
+- `LogDirectory` — папка для логов (по умолчанию `logs`).
+
+Пример:
+
+```xml
+<appSettings>
+  <add key="ApiBaseUrl" value="https://loyalty.example.com"/>
+  <add key="BasicAuthLogin" value="CHANGE_ME"/>
+  <add key="BasicAuthPassword" value="CHANGE_ME"/>
+  <add key="BranchId" value="10"/>
+  <add key="TerminalGroupId" value="iiko-terminal-group-id"/>
+  <add key="PosId" value="front-01"/>
+  <add key="HttpTimeoutSeconds" value="10"/>
+  <add key="LogDirectory" value="logs"/>
+</appSettings>
+```
+
+## Сборка
+1. Откройте решение/проект в Visual Studio.
+2. Проверьте ссылку на `Resto.Front.Api.Vx.dll` в `.csproj` (при необходимости обновите `HintPath`).
+3. Выполните сборку (`Build`) или через команду `msbuild`.
+
+## Установка в iikoFront
+1. Скопируйте в папку `Plugins` iikoFront:
+   - `Bellissimo.IikoFront.LoyaltyPlugin.dll`
+   - `Manifest.xml`
+   - `Bellissimo.IikoFront.LoyaltyPlugin.dll.config` (или актуальный config-файл сборки)
+2. Перезапустите iikoFront.
+3. Убедитесь, что плагин загрузился без ошибок (по логам и в UI iikoFront).
+
+## Проверка запуска (чек-лист)
+- Указан реальный `PluginLicenseModuleId` GUID.
+- Заполнены `ApiBaseUrl`, `BasicAuthLogin`, `BasicAuthPassword`.
+- Корректны `BranchId`, `TerminalGroupId`, `PosId` для текущей точки.
+- Есть сетевой доступ от кассы до loyalty API.
+- В логах нет ошибок авторизации/таймаута.
+
+## Примечания
+- Бизнес-правила лояльности (какие награды и как суммируются) определяются внешним loyalty-сервисом.
+- Плагин отображает и применяет только то, что вернул API.
