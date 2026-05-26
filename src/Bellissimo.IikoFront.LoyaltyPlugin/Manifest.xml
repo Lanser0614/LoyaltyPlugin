@@ -1,7 +1,6 @@
-<?xml version="1.0" encoding="utf-8"?>
-<Manifest xmlns="http://schemas.iiko.ru/front.api/manifest/v2">
-  <Name>Bellissimo Loyalty Plugin</Name>
-  <Description>Bellissimo Loyalty & Promotion POS integration (MVP)</Description>
-  <Version>0.1.0</Version>
+<?xml version="1.0" encoding="utf-8" ?>
+<Manifest>
+  <FileName>Bellissimo.IikoFront.LoyaltyPlugin.dll</FileName>
+  <TypeName>Bellissimo.IikoFront.LoyaltyPlugin.BellissimoLoyaltyPlugin</TypeName>
   <ApiVersion>V8</ApiVersion>
 </Manifest>

@@ -1,6 +1,7 @@
 using System;
 using System.Configuration;
 using System.IO;
+using System.Reflection;
 
 namespace Bellissimo.IikoFront.LoyaltyPlugin.Infrastructure
 {
@@ -17,23 +18,34 @@ namespace Bellissimo.IikoFront.LoyaltyPlugin.Infrastructure
 
         public static PluginSettings Load()
         {
+            var map = new ExeConfigurationFileMap
+            {
+                ExeConfigFilename = Assembly.GetExecutingAssembly().Location + ".config"
+            };
+            var cfg = ConfigurationManager.OpenMappedExeConfiguration(map, ConfigurationUserLevel.None);
+
             return new PluginSettings
             {
-                ApiBaseUrl = ConfigurationManager.AppSettings["ApiBaseUrl"] ?? "http://localhost:8080",
-                BasicAuthLogin = ConfigurationManager.AppSettings["BasicAuthLogin"] ?? string.Empty,
-                BasicAuthPassword = ConfigurationManager.AppSettings["BasicAuthPassword"] ?? string.Empty,
-                BranchId = ParseInt("BranchId", 10),
-                TerminalGroupId = ConfigurationManager.AppSettings["TerminalGroupId"] ?? "iiko-terminal-group-id",
-                PosId = ConfigurationManager.AppSettings["PosId"] ?? Environment.MachineName,
-                HttpTimeout = TimeSpan.FromSeconds(ParseInt("HttpTimeoutSeconds", 10)),
-                LogDirectory = ConfigurationManager.AppSettings["LogDirectory"] ?? Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "logs")
+                ApiBaseUrl = Get(cfg, "ApiBaseUrl", "http://localhost:8080"),
+                BasicAuthLogin = Get(cfg, "BasicAuthLogin", string.Empty),
+                BasicAuthPassword = Get(cfg, "BasicAuthPassword", string.Empty),
+                BranchId = ParseInt(cfg, "BranchId", 10),
+                TerminalGroupId = Get(cfg, "TerminalGroupId", "iiko-terminal-group-id"),
+                PosId = Get(cfg, "PosId", Environment.MachineName),
+                HttpTimeout = TimeSpan.FromSeconds(ParseInt(cfg, "HttpTimeoutSeconds", 10)),
+                LogDirectory = Get(cfg, "LogDirectory", Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "logs"))
             };
         }
 
-        private static int ParseInt(string key, int defaultValue)
+        private static string Get(Configuration cfg, string key, string defaultValue)
+        {
+            return cfg.AppSettings.Settings[key]?.Value ?? defaultValue;
+        }
+
+        private static int ParseInt(Configuration cfg, string key, int defaultValue)
         {
             int value;
-            return int.TryParse(ConfigurationManager.AppSettings[key], out value) ? value : defaultValue;
+            return int.TryParse(cfg.AppSettings.Settings[key]?.Value, out value) ? value : defaultValue;
         }
     }
 }
