@@ -9,6 +9,7 @@
             <RowDefinition Height="*"/>
             <RowDefinition Height="Auto"/>
             <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
         </Grid.RowDefinitions>
         <StackPanel Orientation="Horizontal" Grid.Row="0">
             <TextBox Width="180" Text="{Binding Phone, UpdateSourceTrigger=PropertyChanged}"/>
@@ -16,11 +17,33 @@
         </StackPanel>
         <TextBlock Grid.Row="1" Margin="0,8,0,8" Text="{Binding CustomerInfo}"/>
         <ListBox Grid.Row="2" ItemsSource="{Binding Rewards}" SelectedItem="{Binding SelectedReward}" DisplayMemberPath="name"/>
-        <StackPanel Grid.Row="3" Orientation="Horizontal" Margin="0,8,0,8">
+        <Border Grid.Row="3" Margin="0,4,0,8"
+                BorderBrush="{DynamicResource {x:Static SystemColors.ControlLightBrushKey}}"
+                BorderThickness="1" CornerRadius="4" Padding="8"
+                Visibility="{Binding BellCoinSectionVisibility}">
+            <StackPanel>
+                <StackPanel Orientation="Horizontal">
+                    <CheckBox IsChecked="{Binding UseBellCoin}"
+                              Content="{Binding BellCoinLabel}"
+                              VerticalAlignment="Center"/>
+                </StackPanel>
+                <StackPanel Orientation="Horizontal"
+                            Visibility="{Binding BellCoinInputVisibility}"
+                            Margin="0,6,0,0">
+                    <TextBlock Text="Сумма (сум):" VerticalAlignment="Center" Margin="0,0,8,0"/>
+                    <TextBox Width="120"
+                             Text="{Binding BellCoinAmountInput, UpdateSourceTrigger=PropertyChanged}"/>
+                    <TextBlock Margin="8,0,0,0" VerticalAlignment="Center"
+                               Text="{Binding BellCoinMaxHint}"
+                               Foreground="Gray" FontSize="11"/>
+                </StackPanel>
+            </StackPanel>
+        </Border>
+        <StackPanel Grid.Row="4" Orientation="Horizontal" Margin="0,8,0,8">
             <Button Content="Превью" Command="{Binding PreviewCommand}"/>
             <Button Margin="8,0,0,0" Content="Применить" Command="{Binding ApplyCommand}"/>
             <Button Margin="8,0,0,0" Content="Отменить" Command="{Binding CancelCommand}"/>
         </StackPanel>
-        <TextBlock Grid.Row="4" TextWrapping="Wrap" Text="{Binding StatusMessage}"/>
+        <TextBlock Grid.Row="5" TextWrapping="Wrap" Text="{Binding StatusMessage}"/>
     </Grid>
 </Window>
