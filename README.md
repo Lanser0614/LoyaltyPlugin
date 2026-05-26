@@ -5,7 +5,7 @@
 ## Требования
 - Windows + iikoFront с лицензией разработчика (developer license).
 - .NET Framework 4.7.2 Developer Pack.
-- Доступ к `Resto.Front.Api.Vx.dll` (версия должна соответствовать вашей версии iikoFront).
+- `Resto.Front.Api.V8` берётся из NuGet при сборке. Версия API должна соответствовать вашей версии iikoFront.
 
 ## Где указать ключ лицензии плагина
 Ключ лицензии (GUID) задаётся **в коде**, в атрибуте `PluginLicenseModuleId`:
@@ -50,9 +50,23 @@
 ```
 
 ## Сборка
-1. Откройте решение/проект в Visual Studio.
-2. Проверьте ссылку на `Resto.Front.Api.Vx.dll` в `.csproj` (при необходимости обновите `HintPath`).
-3. Выполните сборку (`Build`) или через команду `msbuild`.
+### GitHub Actions
+1. Запушьте изменения в GitHub.
+2. Откройте вкладку **Actions**.
+3. Запустите workflow **Build plugin** или дождитесь запуска после push.
+4. Скачайте artifact **Bellissimo.IikoFront.LoyaltyPlugin** из успешного run.
+
+Workflow собирает проект на Windows runner, скачивает `Resto.Front.Api.V8` из NuGet только для компиляции и публикует готовую папку плагина.
+
+### Локально на Windows
+1. Откройте проект в Visual Studio или Developer Command Prompt.
+2. Выполните сборку (`Build`) или команду:
+
+```powershell
+msbuild src\Bellissimo.IikoFront.LoyaltyPlugin\Bellissimo.IikoFront.LoyaltyPlugin.csproj /restore /p:Configuration=Release
+```
+
+На macOS локальная сборка этого проекта не является целевым сценарием, потому что проект использует `.NET Framework 4.7.2` и WPF.
 
 ## Установка в iikoFront
 1. Скопируйте в папку `Plugins` iikoFront:

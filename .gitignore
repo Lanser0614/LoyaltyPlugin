@@ -1,0 +1,7 @@
+bin/
+obj/
+artifacts/
+
+# Optional local iikoFront SDK files for manual Windows builds.
+lib/*.dll
+lib/*.xml
