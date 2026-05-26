@@ -40,9 +40,10 @@ namespace Bellissimo.IikoFront.LoyaltyPlugin
 
         private void RegisterLoyaltyAction()
         {
-            // TODO(iiko-sdk): verify exact API for adding button/menu action in your SDK version.
-            // Keep this isolated so unknown SDK signatures do not leak into business classes.
-            loyaltyActionSubscription = PluginContext.Notifications.SubscribeToAnyNotification(_ => { });
+            loyaltyActionSubscription = PluginContext.Operations.AddButtonToOrderView(
+                "bellissimo-loyalty",
+                "Loyalty",
+                orderId => OpenLoyaltyWindow());
         }
 
         internal void OpenLoyaltyWindow()

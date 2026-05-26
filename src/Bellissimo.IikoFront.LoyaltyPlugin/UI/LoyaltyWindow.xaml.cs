@@ -1,4 +1,7 @@
+using System;
+using System.Runtime.InteropServices;
 using System.Windows;
+using System.Windows.Interop;
 
 namespace Bellissimo.IikoFront.LoyaltyPlugin.UI
 {
@@ -8,7 +11,14 @@ namespace Bellissimo.IikoFront.LoyaltyPlugin.UI
         {
             InitializeComponent();
             DataContext = vm;
-            Loaded += (s, e) => Activate(); // TODO(iiko-sdk): verify owner/focus workaround in iikoFront shell.
+            Loaded += (s, e) =>
+            {
+                var helper = new WindowInteropHelper(this);
+                SetForegroundWindow(helper.Handle);
+            };
         }
+
+        [DllImport("user32.dll")]
+        private static extern bool SetForegroundWindow(IntPtr hWnd);
     }
 }

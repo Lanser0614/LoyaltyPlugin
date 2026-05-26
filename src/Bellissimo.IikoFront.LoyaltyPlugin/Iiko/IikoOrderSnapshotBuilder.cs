@@ -1,6 +1,9 @@
 using System.Collections.Generic;
+using System.Linq;
 using Bellissimo.IikoFront.LoyaltyPlugin.Api.Dtos;
 using Bellissimo.IikoFront.LoyaltyPlugin.Infrastructure;
+using Resto.Front.Api;
+using Resto.Front.Api.Data.Orders;
 
 namespace Bellissimo.IikoFront.LoyaltyPlugin.Iiko
 {
@@ -11,9 +14,30 @@ namespace Bellissimo.IikoFront.LoyaltyPlugin.Iiko
 
         public OrderSnapshot BuildCurrentOrderSnapshot()
         {
-            // TODO(iiko-sdk): replace stub with PluginContext.Operations.GetCurrentOrder() flow.
-            logger.Info("Building order snapshot (stub for SDK-specific implementation)");
-            return new OrderSnapshot { IikoOrderId = "iiko-order-123", CashierId = "cashier-123", Items = new List<OrderItemSnapshotDto>() };
+            var order = PluginContext.Operations
+                .GetOrders()
+                .FirstOrDefault(o => o.Status == OrderStatus.New || o.Status == OrderStatus.Bill);
+
+            var cashier = PluginContext.Operations.GetCredentials().User?.Id.ToString() ?? "unknown";
+
+            return new OrderSnapshot
+            {
+                IikoOrderId = order?.Id.ToString() ?? string.Empty,
+                CashierId = cashier,
+                IsClosed = order == null,
+                Items = order?.Items
+                    .OfType<IOrderProductItem>()
+                    .Select(i => new OrderItemSnapshotDto
+                    {
+                        line_id = i.Id.ToString(),
+                        type = "product",
+                        iiko_product_id = i.Product.Id.ToString(),
+                        iiko_group_id = i.Product.Parent?.Id.ToString() ?? string.Empty,
+                        quantity = i.Amount,
+                        total_price = (long)(i.Price * i.Amount)
+                    })
+                    .ToList() ?? new List<OrderItemSnapshotDto>()
+            };
         }
     }
 

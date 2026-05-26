@@ -1,5 +1,8 @@
+using System;
+using System.Linq;
 using Bellissimo.IikoFront.LoyaltyPlugin.Api.Dtos;
 using Bellissimo.IikoFront.LoyaltyPlugin.Infrastructure;
+using Resto.Front.Api;
 
 namespace Bellissimo.IikoFront.LoyaltyPlugin.Iiko
 {
@@ -8,17 +11,22 @@ namespace Bellissimo.IikoFront.LoyaltyPlugin.Iiko
         private readonly PluginLogger logger;
         public IikoDiscountApplier(PluginLogger logger) { this.logger = logger; }
 
-        public void ApplyDiscounts(ApplyResponse response)
+        public void ApplyDiscounts(ApplyResponse response, string iikoOrderId)
         {
-            // TODO(iiko-sdk): AddFlexibleSumDiscount exact signature and SubmitChanges edit session.
-            var discountType = ResolveLoyaltyDiscountType();
-            logger.Info($"Apply discounts via SDK TODO. DiscountType={discountType}, amount={response.total_discount_amount}");
-        }
+            if (response == null || response.total_discount_amount <= 0)
+                return;
 
-        private string ResolveLoyaltyDiscountType()
-        {
-            // TODO(iiko-sdk): Resolve discount type by external id/name.
-            return "TODO_LOYALTY_DISCOUNT_TYPE";
+            var discountType = PluginContext.Operations.GetDiscountTypes()
+                .First(d => !d.Deleted && d.IsActive && d.DiscountByFlexibleSum && d.Name == "BellissimoLoyalty");
+
+            var order = PluginContext.Operations.GetOrders()
+                .First(o => o.Id.ToString() == iikoOrderId);
+
+            var session = PluginContext.Operations.CreateEditSession();
+            session.AddFlexibleSumDiscount(discountType, order, (double)response.total_discount_amount);
+            PluginContext.Operations.SubmitChanges(PluginContext.Operations.GetCredentials(), session);
+
+            logger.Info($"Applied flexible sum discount {response.total_discount_amount} to order {iikoOrderId}");
         }
     }
 }
