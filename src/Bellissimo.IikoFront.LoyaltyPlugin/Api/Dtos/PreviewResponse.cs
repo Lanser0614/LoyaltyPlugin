@@ -1,0 +1,2 @@
+using System; using System.Collections.Generic;
+namespace Bellissimo.IikoFront.LoyaltyPlugin.Api.Dtos { public sealed class PreviewResponse { public bool allowed { get; set; } public string preview_id { get; set; } public DateTimeOffset? expires_at { get; set; } public long total_discount_amount { get; set; } public string failure_reason { get; set; } public string message { get; set; } public List<DiscountDto> discounts { get; set; } public List<FreeItemDto> free_items { get; set; } } }

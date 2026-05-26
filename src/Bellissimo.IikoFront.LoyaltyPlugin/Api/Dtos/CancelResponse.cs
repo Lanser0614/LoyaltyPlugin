@@ -1,0 +1,1 @@
+namespace Bellissimo.IikoFront.LoyaltyPlugin.Api.Dtos { public sealed class CancelResponse { public bool cancelled { get; set; } public string coupon_usage_status { get; set; } public string customer_coupon_status { get; set; } public string bellcoin_status { get; set; } } }

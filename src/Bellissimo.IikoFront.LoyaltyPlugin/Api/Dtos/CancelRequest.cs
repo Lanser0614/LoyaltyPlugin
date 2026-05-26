@@ -1,0 +1,1 @@
+namespace Bellissimo.IikoFront.LoyaltyPlugin.Api.Dtos { public sealed class CancelRequest { public long application_id { get; set; } public string iiko_order_id { get; set; } public string reason { get; set; } public string idempotency_key { get; set; } } }

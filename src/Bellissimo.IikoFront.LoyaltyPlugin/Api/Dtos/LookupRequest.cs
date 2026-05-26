@@ -1,0 +1,1 @@
+namespace Bellissimo.IikoFront.LoyaltyPlugin.Api.Dtos { public sealed class LookupRequest { public string phone { get; set; } public int branch_id { get; set; } public string terminal_group_id { get; set; } public string pos_id { get; set; } public string cashier_id { get; set; } } }
