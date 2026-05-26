@@ -26,6 +26,9 @@ namespace Bellissimo.IikoFront.LoyaltyPlugin.UI
         private string previewId;
         private DateTimeOffset? previewExpiresAt;
         private long lastApplicationId;
+        private bool useBellCoin;
+        private string bellCoinAmountInput = "0";
+        private RewardDto selectedReward;
 
         public LoyaltyViewModel(
             LoyaltyApiClient api,
@@ -58,7 +61,67 @@ namespace Bellissimo.IikoFront.LoyaltyPlugin.UI
         public string CustomerInfo { get; set; }
         public string StatusMessage { get; set; }
         public List<RewardDto> Rewards { get; private set; } = new List<RewardDto>();
-        public RewardDto SelectedReward { get; set; }
+        public RewardDto SelectedReward
+        {
+            get => selectedReward;
+            set
+            {
+                selectedReward = value;
+                if (value != null && useBellCoin)
+                {
+                    useBellCoin = false;
+                    StatusMessage = "BellCoin отключён: нельзя использовать с купоном";
+                }
+
+                NotifyAll();
+            }
+        }
+
+        public bool UseBellCoin
+        {
+            get => useBellCoin;
+            set
+            {
+                useBellCoin = value;
+                if (value && SelectedReward != null)
+                {
+                    SelectedReward = null;
+                    StatusMessage = MapFailureReason("COUPON_AND_BELLCOIN_NOT_STACKABLE", null);
+                }
+
+                NotifyAll();
+            }
+        }
+
+        public string BellCoinAmountInput
+        {
+            get => bellCoinAmountInput;
+            set
+            {
+                bellCoinAmountInput = value;
+                NotifyAll();
+            }
+        }
+
+        public string BellCoinLabel =>
+            cachedLookup?.bellcoin != null
+                ? $"Списать BellCoin (доступно: {cachedLookup.bellcoin.available_balance:N0} сум)"
+                : "Списать BellCoin";
+
+        public string BellCoinMaxHint =>
+            cachedLookup?.bellcoin != null
+                ? $"макс. {cachedLookup.bellcoin.available_balance:N0}"
+                : string.Empty;
+
+        public System.Windows.Visibility BellCoinInputVisibility =>
+            UseBellCoin
+                ? System.Windows.Visibility.Visible
+                : System.Windows.Visibility.Collapsed;
+
+        public System.Windows.Visibility BellCoinSectionVisibility =>
+            cachedLookup != null
+                ? System.Windows.Visibility.Visible
+                : System.Windows.Visibility.Collapsed;
         public ICommand LookupCommand { get; }
         public ICommand PreviewCommand { get; }
         public ICommand ApplyCommand { get; }
@@ -103,6 +166,18 @@ namespace Bellissimo.IikoFront.LoyaltyPlugin.UI
                     return;
                 }
 
+                if (UseBellCoin && SelectedReward != null)
+                {
+                    StatusMessage = MapFailureReason("COUPON_AND_BELLCOIN_NOT_STACKABLE", null);
+                    NotifyAll();
+                    return;
+                }
+
+                if (!TryParseBellCoinAmount(out var bellCoinAmount))
+                {
+                    return;
+                }
+
                 var o = snapshotBuilder.BuildCurrentOrderSnapshot();
                 var req = new PreviewRequest
                 {
@@ -115,8 +190,8 @@ namespace Bellissimo.IikoFront.LoyaltyPlugin.UI
                     cashier_id = o.CashierId,
                     customer_coupon_id = SelectedReward?.customer_coupon_id,
                     items = o.Items,
-                    use_bellcoin = false,
-                    bellcoin_amount = 0
+                    use_bellcoin = UseBellCoin,
+                    bellcoin_amount = bellCoinAmount
                 };
 
                 var r = await api.PreviewAsync(req);
@@ -172,6 +247,8 @@ namespace Bellissimo.IikoFront.LoyaltyPlugin.UI
                     lastApplicationId = r.application_id;
                     logger.Info("Applied application_id=" + lastApplicationId);
                     StatusMessage = "Успешно применено";
+                    UseBellCoin = false;
+                    BellCoinAmountInput = "0";
                 }
 
                 NotifyAll();
@@ -204,12 +281,44 @@ namespace Bellissimo.IikoFront.LoyaltyPlugin.UI
 
                 var r = await api.CancelAsync(req);
                 StatusMessage = r.cancelled ? "Применение отменено" : "Ошибка отмены";
+                if (r.cancelled)
+                {
+                    UseBellCoin = false;
+                    BellCoinAmountInput = "0";
+                }
                 NotifyAll();
             }
             catch (Exception ex)
             {
                 HandleException(ex);
             }
+        }
+
+
+        private bool TryParseBellCoinAmount(out long amount)
+        {
+            amount = 0;
+            if (!UseBellCoin)
+            {
+                return true;
+            }
+
+            if (!long.TryParse(bellCoinAmountInput, out amount) || amount <= 0)
+            {
+                StatusMessage = "Введите корректную сумму BellCoin";
+                NotifyAll();
+                return false;
+            }
+
+            var available = cachedLookup?.bellcoin?.available_balance ?? 0;
+            if (amount > available)
+            {
+                StatusMessage = MapFailureReason("BELLCOIN_INSUFFICIENT_BALANCE", null);
+                NotifyAll();
+                return false;
+            }
+
+            return true;
         }
 
         private void HandleException(Exception ex)
@@ -221,7 +330,7 @@ namespace Bellissimo.IikoFront.LoyaltyPlugin.UI
         }
 
         private static string MapFailureReason(string code, string fallback){switch(code){case "CUSTOMER_NOT_FOUND": return "Клиент не найден";case "NO_AVAILABLE_REWARDS": return "Нет доступных наград";case "COUPON_NOT_FOUND": return "Купон не найден";case "CUSTOMER_COUPON_NOT_AVAILABLE": return "Купон недоступен";case "CUSTOMER_COUPON_NOT_OWNED_BY_CUSTOMER": return "Купон не принадлежит клиенту";case "COUPON_CONDITION_NOT_MATCHED": return "Условия купона не выполнены";case "BELLCOIN_INSUFFICIENT_BALANCE": return "Недостаточно BellCoin";case "BELLCOIN_REDEMPTION_LIMIT_EXCEEDED": return "Превышен лимит списания BellCoin";case "COUPON_AND_BELLCOIN_NOT_STACKABLE": return "Купон и BellCoin нельзя использовать вместе";case "MULTIPLE_COUPONS_NOT_ALLOWED": return "Можно применить только один купон";case "MAX_TOTAL_DISCOUNT_EXCEEDED": return "Превышен максимальный размер скидки";case "IIKO_PRODUCT_NOT_FOUND": return "Товар iiko не найден";case "IIKO_COMBO_NOT_FOUND": return "Комбо iiko не найден";case "REWARD_ALREADY_APPLIED": return "Награда уже применена";case "REWARD_APPLICATION_NOT_FOUND": return "Применение награды не найдено";case "PREVIEW_EXPIRED": return "Время превью истекло. Выполните превью заново";case "ORDER_ALREADY_CLOSED": return "Заказ уже закрыт";case "LOYALTY_SERVICE_UNAVAILABLE": return "Сервис лояльности недоступен";case "INVALID_POS_CREDENTIALS": return "Неверные POS-учетные данные";default:return fallback??"Неизвестная ошибка";}}
-        private void NotifyAll(){PropertyChanged?.Invoke(this,new PropertyChangedEventArgs(nameof(CustomerInfo)));PropertyChanged?.Invoke(this,new PropertyChangedEventArgs(nameof(StatusMessage)));PropertyChanged?.Invoke(this,new PropertyChangedEventArgs(nameof(Rewards)));}
+        private void NotifyAll(){PropertyChanged?.Invoke(this,new PropertyChangedEventArgs(nameof(CustomerInfo)));PropertyChanged?.Invoke(this,new PropertyChangedEventArgs(nameof(StatusMessage)));PropertyChanged?.Invoke(this,new PropertyChangedEventArgs(nameof(Rewards)));PropertyChanged?.Invoke(this,new PropertyChangedEventArgs(nameof(SelectedReward)));PropertyChanged?.Invoke(this,new PropertyChangedEventArgs(nameof(UseBellCoin)));PropertyChanged?.Invoke(this,new PropertyChangedEventArgs(nameof(BellCoinAmountInput)));PropertyChanged?.Invoke(this,new PropertyChangedEventArgs(nameof(BellCoinLabel)));PropertyChanged?.Invoke(this,new PropertyChangedEventArgs(nameof(BellCoinMaxHint)));PropertyChanged?.Invoke(this,new PropertyChangedEventArgs(nameof(BellCoinInputVisibility)));PropertyChanged?.Invoke(this,new PropertyChangedEventArgs(nameof(BellCoinSectionVisibility)));}
 
         private sealed class RelayCommand : ICommand { private readonly Func<Task> execute; public RelayCommand(Func<Task> execute){this.execute=execute;} public bool CanExecute(object p)=>true; public event EventHandler CanExecuteChanged; public async void Execute(object p)=>await execute(); }
     }
