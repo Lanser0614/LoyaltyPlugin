@@ -3,6 +3,7 @@ using System.Linq;
 using Bellissimo.IikoFront.LoyaltyPlugin.Api.Dtos;
 using Bellissimo.IikoFront.LoyaltyPlugin.Infrastructure;
 using Resto.Front.Api;
+using Resto.Front.Api.Extensions;
 
 namespace Bellissimo.IikoFront.LoyaltyPlugin.Iiko
 {
@@ -22,9 +23,8 @@ namespace Bellissimo.IikoFront.LoyaltyPlugin.Iiko
             var order = PluginContext.Operations.GetOrders()
                 .First(o => o.Id.ToString() == iikoOrderId);
 
-            var session = PluginContext.Operations.CreateEditSession();
-            session.AddFlexibleSumDiscount(discountType, order, (double)response.total_discount_amount);
-            PluginContext.Operations.SubmitChanges(PluginContext.Operations.GetCredentials(), session);
+            var credentials = PluginContext.Operations.GetDefaultCredentials();
+            PluginContext.Operations.AddFlexibleSumDiscount(response.total_discount_amount, discountType, order, credentials);
 
             logger.Info($"Applied flexible sum discount {response.total_discount_amount} to order {iikoOrderId}");
         }

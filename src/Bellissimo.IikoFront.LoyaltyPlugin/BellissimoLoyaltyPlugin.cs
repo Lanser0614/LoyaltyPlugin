@@ -40,10 +40,9 @@ namespace Bellissimo.IikoFront.LoyaltyPlugin
 
         private void RegisterLoyaltyAction()
         {
-            loyaltyActionSubscription = PluginContext.Operations.AddButtonToOrderView(
-                "bellissimo-loyalty",
+            loyaltyActionSubscription = PluginContext.Operations.AddButtonToOrderEditScreen(
                 "Loyalty",
-                orderId => OpenLoyaltyWindow());
+                _ => OpenLoyaltyWindow());
         }
 
         internal void OpenLoyaltyWindow()

@@ -18,7 +18,8 @@ namespace Bellissimo.IikoFront.LoyaltyPlugin.Iiko
                 .GetOrders()
                 .FirstOrDefault(o => o.Status == OrderStatus.New || o.Status == OrderStatus.Bill);
 
-            var cashier = PluginContext.Operations.GetCredentials().User?.Id.ToString() ?? "unknown";
+            var credentials = PluginContext.Operations.GetDefaultCredentials();
+            var cashier = PluginContext.Operations.GetUser(credentials)?.Id.ToString() ?? "unknown";
 
             return new OrderSnapshot
             {
@@ -32,7 +33,7 @@ namespace Bellissimo.IikoFront.LoyaltyPlugin.Iiko
                         line_id = i.Id.ToString(),
                         type = "product",
                         iiko_product_id = i.Product.Id.ToString(),
-                        iiko_group_id = i.Product.Parent?.Id.ToString() ?? string.Empty,
+                        iiko_group_id = i.Product.Category?.Id.ToString() ?? string.Empty,
                         quantity = i.Amount,
                         total_price = (long)(i.Price * i.Amount)
                     })
