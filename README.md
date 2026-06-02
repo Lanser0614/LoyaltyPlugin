@@ -17,13 +17,13 @@ libs/Resto.Front.Api.V8.dll
 Проект ссылается на этот файл через `HintPath` в `src/Bellissimo.IikoFront.LoyaltyPlugin/Bellissimo.IikoFront.LoyaltyPlugin.csproj`. Без DLL сборка остановится с явной ошибкой.
 
 ## Где указать ключ лицензии плагина
-Ключ лицензии (GUID) задаётся **в коде**, в атрибуте `PluginLicenseModuleId`:
+ID лицензии/модуля задаётся **в коде**, в атрибуте `PluginLicenseModuleId`:
 
 - Файл: `src/Bellissimo.IikoFront.LoyaltyPlugin/BellissimoLoyaltyPlugin.cs`
 - Строка вида:
-  - `[PluginLicenseModuleId("00000000-0000-0000-0000-000000000000")]`
+  - `[PluginLicenseModuleId(0)]`
 
-Замените `00000000-0000-0000-0000-000000000000` на ваш реальный GUID из портала разработчика iiko.
+Замените `0` на реальный числовой module id из портала разработчика iiko.
 
 ## Конфигурация (`app.config`)
 Файл: `src/Bellissimo.IikoFront.LoyaltyPlugin/app.config`
@@ -108,7 +108,7 @@ Namespace `xmlns=...` для этого варианта не используе
   - добавляет free items в заказ (если возвращены API).
 
 ## Проверка запуска (чек-лист)
-- Указан реальный `PluginLicenseModuleId` GUID.
+- Указан реальный `PluginLicenseModuleId`.
 - Заполнены `ApiBaseUrl`, `BasicAuthLogin`, `BasicAuthPassword`.
 - Корректны `BranchId`, `TerminalGroupId`, `PosId` для текущей точки.
 - Есть сетевой доступ от кассы до loyalty API.

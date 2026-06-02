@@ -33,7 +33,7 @@ jobs:
       - name: Stage plugin files
         shell: pwsh
         run: |
-          $output = "src\Bellissimo.IikoFront.LoyaltyPlugin\bin\Release\net472"
+          $output = "src\Bellissimo.IikoFront.LoyaltyPlugin\bin\Any CPU\Release\net472"
           $stage = "artifacts\Bellissimo.IikoFront.LoyaltyPlugin"
 
           New-Item -ItemType Directory -Force -Path $stage | Out-Null
