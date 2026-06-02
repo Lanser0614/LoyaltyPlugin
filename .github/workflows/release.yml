@@ -17,21 +17,19 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Setup .NET
-        uses: actions/setup-dotnet@v4
-        with:
-          dotnet-version: "8.x"
+      - name: Setup MSBuild
+        uses: microsoft/setup-msbuild@v2
 
-      - name: Restore dependencies
-        run: dotnet restore src/Bellissimo.IikoFront.LoyaltyPlugin/Bellissimo.IikoFront.LoyaltyPlugin.csproj
+      - name: Setup NuGet
+        uses: NuGet/setup-nuget@v2
 
-      - name: Build Release
+      - name: Restore and build release
         run: >
-          dotnet build
-          src/Bellissimo.IikoFront.LoyaltyPlugin/Bellissimo.IikoFront.LoyaltyPlugin.csproj
-          --configuration Release
-          --no-restore
-          -warnaserror
+          msbuild src\Bellissimo.IikoFront.LoyaltyPlugin\Bellissimo.IikoFront.LoyaltyPlugin.csproj
+          /restore
+          /p:Configuration=Release
+          /p:Platform="Any CPU"
+          /warnaserror
 
       - name: Package plugin
         shell: pwsh

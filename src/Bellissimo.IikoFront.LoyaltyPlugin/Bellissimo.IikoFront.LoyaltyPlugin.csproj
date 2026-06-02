@@ -10,7 +10,10 @@
 
   <ItemGroup>
     <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
-    <PackageReference Include="Resto.Front.Api.V8" Version="8.7.6032" PrivateAssets="all" ExcludeAssets="runtime" />
+    <Reference Include="Resto.Front.Api.V8">
+      <HintPath>..\..\libs\Resto.Front.Api.V8.dll</HintPath>
+      <Private>false</Private>
+    </Reference>
   </ItemGroup>
 
   <ItemGroup>
@@ -21,4 +24,10 @@
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
   </ItemGroup>
+
+  <Target Name="EnsureIikoFrontApiDllExists" BeforeTargets="ResolveReferences">
+    <Error
+      Condition="!Exists('$(MSBuildThisFileDirectory)..\..\libs\Resto.Front.Api.V8.dll')"
+      Text="Missing iikoFront API DLL. Copy Resto.Front.Api.V8.dll to the repository libs directory before building." />
+  </Target>
 </Project>
