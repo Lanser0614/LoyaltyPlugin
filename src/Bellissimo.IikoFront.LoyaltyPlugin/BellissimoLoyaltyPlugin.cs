@@ -10,7 +10,7 @@ using Resto.Front.Api.Data.Organization;
 namespace Bellissimo.IikoFront.LoyaltyPlugin
 {
     // TODO: Replace with the real module id from the iiko developer portal.
-    [PluginLicenseModuleId(0)]
+    [PluginLicenseModuleId(21016318)]
     public sealed class BellissimoLoyaltyPlugin : IFrontPlugin
     {
         private readonly PluginSettings settings;
